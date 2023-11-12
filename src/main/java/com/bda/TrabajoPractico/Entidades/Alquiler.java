@@ -39,9 +39,9 @@ public class Alquiler {
 	@Column (name="FECHA_HORA_DEVOLUCION")
     private Date llegada;
 	
-	@OneToOne
-	@JoinColumn(name= "ID_CLIENTE" )
-    private Cliente cliente;
+	
+	@Column(name= "ID_CLIENTE" )
+    private int cliente;
 	
 	@OneToOne
 	@JoinColumn(name= "ID_TARIFA" )
