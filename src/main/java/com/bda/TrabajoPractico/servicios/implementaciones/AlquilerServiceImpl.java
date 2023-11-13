@@ -1,44 +1,73 @@
 package com.bda.TrabajoPractico.servicios.implementaciones;
 
-import com.bda.TrabajoPractico.Entidades.Alquiler;
-import com.bda.TrabajoPractico.repositorios.AlquilerRepository;
-import com.bda.TrabajoPractico.servicios.interfaces.AlquilerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.bda.TrabajoPractico.Entidades.Alquiler;
+import com.bda.TrabajoPractico.Entidades.dto.AlquilerDto;
+import com.bda.TrabajoPractico.repositorios.AlquilerRepository;
+import com.bda.TrabajoPractico.servicios.AlquilerService;
+import com.bda.TrabajoPractico.servicios.mappers.AlquilerDtoMapper;
+import com.bda.TrabajoPractico.servicios.mappers.AlquilerMapper;
 
 @Service
 public class AlquilerServiceImpl implements AlquilerService {
 
-    private final AlquilerRepository alquilerRepository;
+	private AlquilerRepository alquilerRepository;
+	private final AlquilerDtoMapper mapperDto;
+	private final AlquilerMapper mapper;
 
-    @Autowired
-    public AlquilerServiceImpl(AlquilerRepository alquilerRepository){
-        this.alquilerRepository=alquilerRepository;
-    }
-    @Override
-    public Alquiler add(Alquiler alquiler) {
-        return alquilerRepository.save(alquiler);
-    }
+	public AlquilerServiceImpl(AlquilerRepository alquilerRpository, AlquilerDtoMapper mapperDto,
+			AlquilerMapper mapper) {
+		this.alquilerRepository = alquilerRepository;
+		this.mapperDto = mapperDto;
+		this.mapper = mapper;
+	}
 
-    @Override
-    public List<Alquiler> getAll() {
-        return alquilerRepository.findAll();
-    }
+	@Override
+	public AlquilerDto add(AlquilerDto entity) {
+		Optional<Alquiler> alquiler = Stream.of(entity).map(mapper).findFirst();
+		try {
+			alquiler.ifPresent(alquilerRepository::save);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return alquiler.map(mapperDto).orElseThrow();
 
-    @Override
-    public Alquiler getById(Long id) {
-        return alquilerRepository.findById(id).get();
-    }
+	}
 
-    @Override
-    public void update(Alquiler alquiler) {
-        alquilerRepository.save(alquiler);
-    }
+	@Override
+	public AlquilerDto update(AlquilerDto entity) {
+		Optional<Alquiler> alquiler = Stream.of(entity).map(mapper).findFirst();
+		alquiler.ifPresent(alquilerRepository::save);
+		return alquiler.map(mapperDto).orElseThrow();
 
-    @Override
-    public void delete(Long id) {
-        alquilerRepository.deleteById(id);
-    }
+	}
+
+	@Override
+	public AlquilerDto delete(Long id) {
+		AlquilerDto alquiler = this.getById(id);
+		if (alquiler != null) {
+			Optional<Alquiler> entity = Stream.of(alquiler).map(mapper).findFirst();
+			entity.ifPresent(alquilerRepository::delete);
+		}
+
+		return alquiler;
+	}
+
+	@Override
+	public AlquilerDto getById(Long id) {
+		Optional<Alquiler> alquiler = this.alquilerRepository.findById(id);
+		return alquiler.map(mapperDto).orElseThrow();
+	}
+
+	@Override
+	public List<AlquilerDto> getAll() {
+		List<Alquiler> alquileres = this.alquilerRepository.findAll();
+		return alquileres.stream().map(mapperDto).toList();
+	}
+
 }
