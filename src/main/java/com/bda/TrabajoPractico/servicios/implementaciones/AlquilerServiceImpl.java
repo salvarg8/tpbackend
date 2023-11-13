@@ -28,7 +28,7 @@ public class AlquilerServiceImpl implements AlquilerService {
     }
 
     @Override
-    public Alquiler getById(Integer id) {
+    public Alquiler getById(Long id) {
         return alquilerRepository.findById(id).get();
     }
 
@@ -38,7 +38,7 @@ public class AlquilerServiceImpl implements AlquilerService {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         alquilerRepository.deleteById(id);
     }
 }
